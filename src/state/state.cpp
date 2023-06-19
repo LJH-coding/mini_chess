@@ -2,20 +2,81 @@
 #include <sstream>
 #include <cstdint>
 #include <random>
+#include <bits/stdc++.h>
 
 #include "./state.hpp"
 #include "../config.hpp"
-
-std::mt19937 mt(time(0));
 
 /**
  * @brief evaluate the state
  * 
  * @return int 
  */
-int State::evaluate(){
-  // [TODO] design your own evaluation function
-  return 0;
+int State::evaluate(){//state-value-function
+	int value = 0, now_player = this->player;
+	//piece value
+  int piece_values[] = {0, 1, 5, 3, 3, 9, 100};
+  int position_weight[5][5] = {
+    {0, 0, 0, 0, 0},
+    {2, 4, 6, 4, 2},
+    {1, 2, 5, 2, 1},
+    {1, -2, -1, -5, 1},
+    {2, 4, 0, -2, -4}
+  };
+  Board now = this->board;
+  for(int i = 0;i < 5;++i){
+    for(int j = 0;j < 5;++j){
+      value += piece_values[now.board[now_player][i][j]];
+      value -= piece_values[now.board[now_player^1][i][j]];
+    }
+  }
+
+  for(int i = 0;i < 5;++i){
+    for(int j = 0;j < 5;++j){
+      value += position_weight[i][j] * piece_values[now.board[now_player][i][j]];
+      value -= position_weight[i][j] * piece_values[now.board[now_player][i][j]];
+    }
+  }
+
+  int control = 0;
+  for(int i = 0;i < 5;++i){
+    for(int j = 0;j < 5;++j){
+      if(now.board[now_player][i][j])control++;
+      else if(now.board[now_player^1][i][j])control--;
+    }
+  }
+  value += control;
+
+  double attack_defense_value = 0;
+  for(int i = 0;i < 5;++i){
+    for(int j = 0;j < 5;++j){
+      if(now.board[now_player][i][j]){
+        //attack
+        double attack_value = 0;
+        for(int k = 0;k < 5;++k){
+          for(int l = 0;l < 5;++l){
+            if(now.board[now_player^1][k][l]){
+              attack_value += piece_values[now.board[now_player^1][k][l]] / (1.0 * abs(k - i) + abs(l - j) + 1.0);
+            }
+          }
+        }
+        attack_defense_value += attack_value;
+        //defense
+        double defense_value = 0;
+        for(int k = 0;k < 5;++k){
+          for(int l = 0;l < 5;++l){
+            if(now.board[now_player][k][l] and (k!=i or l!=j)){
+              defense_value += piece_values[now.board[now_player][k][l]] / (1.0 * abs(k - i) + abs(l - j) + 1.0);
+            }
+          }
+        }
+        attack_defense_value -= defense_value;
+      }
+    }
+  }
+  value += ceil(attack_defense_value * 100);
+
+	return value;
 }
 
 
