@@ -38,7 +38,7 @@ int MinMax(State *state, int depth, int MaxPlayer){
 Move Random::get_move(State *state, int depth){
   if(!state->legal_actions.size())
     state->get_legal_actions();
-  int ans = MinMax(state, 5, 1);
+  int ans = MinMax(state, 3, 1);
   for(auto i : state->legal_actions){
     State *next_state = state->next_state(i);
     if(next_state->evaluate() == ans){
