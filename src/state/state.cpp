@@ -17,11 +17,11 @@ int State::evaluate(){//state-value-function
 	//piece value
   int piece_values[] = {0, 1, 5, 3, 3, 9, 100};
   int position_weight[5][5] = {
-    {1, 1, 1, 1, 1},
-    {1, 3, 4, 1, 1},
-    {1, 2, 5, 2, 1},
-    {1, 2, 1, 5, 1},
-    {1, 1, 1, 1, 1}
+    {50, 50, 50, 50, 50},
+    {10, 20, 30, 20, 10},
+    {5, 10, 25, 10, 5},
+    {0, -10, -20, 10, 5},
+    {0, 0, -20, -20, 0}
   };
   Board now = this->board;
   for(int i = 0;i < 5;++i){
