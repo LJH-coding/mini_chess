@@ -17,6 +17,11 @@ const int inf = 1e9+7;
 int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
   if(depth == 0 || !state->legal_actions.size())
     return state->evaluate();
+  for(auto i : state->legal_actions){
+    State *next_state = state->next_state(i);
+    if(next_state->game_state == WIN)return inf;
+    if(next_state->game_state == DRAW)return -inf;
+  }
   if(MaxPlayer){
     int value = -inf;
     for(auto i : state->legal_actions){
