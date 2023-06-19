@@ -34,7 +34,7 @@ int State::evaluate(){//state-value-function
   for(int i = 0;i < 5;++i){
     for(int j = 0;j < 5;++j){
       value += position_weight[i][j] * piece_values[now.board[now_player][i][j]];
-      value -= position_weight[i][j] * piece_values[now.board[now_player][i][j]];
+      value -= position_weight[i][j] * piece_values[now.board[now_player^1][i][j]];
     }
   }
 
@@ -74,7 +74,7 @@ int State::evaluate(){//state-value-function
       }
     }
   }
-  value += ceil(attack_defense_value * 100);
+  value += ceil(attack_defense_value * 10);
 
 	return value;
 }
