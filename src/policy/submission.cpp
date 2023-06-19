@@ -14,14 +14,17 @@ const int inf = 1e9+7;
  * @return Move 
  */
 
-int MinMax(State *state, int depth, int MaxPlayer){
+int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
   if(depth == 0 || !state->legal_actions.size())
     return state->evaluate();
   if(MaxPlayer){
     int value = -inf;
     for(auto i : state->legal_actions){
       State *next_state = state->next_state(i);
-      value = std::max(value, MinMax(next_state, depth - 1, 0));
+      value = std::max(value, MinMax(next_state, depth - 1, alpha, beta, 0));
+      alpha = std::max(alpha, value);
+      if(alpha >= beta)
+        break;
     }
     return value;
   }
@@ -29,7 +32,10 @@ int MinMax(State *state, int depth, int MaxPlayer){
     int value = inf;
     for(auto i : state->legal_actions){
       State *next_state = state->next_state(i);
-      value = std::min(value, MinMax(next_state, depth - 1, 1));
+      value = std::min(value, MinMax(next_state, depth - 1, alpha, beta, 1));
+      beta = std::min(beta, value);
+      if(beta <= alpha)
+        break;
     }
     return value;
   }
@@ -38,7 +44,7 @@ int MinMax(State *state, int depth, int MaxPlayer){
 Move Random::get_move(State *state, int depth){
   if(!state->legal_actions.size())
     state->get_legal_actions();
-  int ans = MinMax(state, 3, 1);
+  int ans = MinMax(state, 5, -inf, inf, 1);
   for(auto i : state->legal_actions){
     State *next_state = state->next_state(i);
     if(next_state->evaluate() == ans){
