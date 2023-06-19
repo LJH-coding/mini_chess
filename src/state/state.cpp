@@ -13,25 +13,26 @@
  * @return int 
  */
 int State::evaluate(){//state-value-function
-	int value = 0, now_player = 0;
+	int value = 0, now_player = this->player;
 	//piece value
   int piece_values[] = {0, 1, 5, 3, 3, 9, 100};
-  int position_weight[5][5] = {
+  int position_weight[6][5] = {
     {50, 50, 50, 50, 50},
     {10, 20, 30, 20, 10},
     {5, 10, 25, 10, 5},
+    {5, -5, 10, -10, -20},
     {0, -10, -20, 10, 5},
     {0, 0, -20, -20, 0}
   };
   Board now = this->board;
-  for(int i = 0;i < 5;++i){
+  for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
       value += piece_values[now.board[now_player][i][j]];
       value -= piece_values[now.board[now_player^1][i][j]];
     }
   }
 
-  for(int i = 0;i < 5;++i){
+  for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
       value += position_weight[i][j] * piece_values[now.board[now_player][i][j]];
       value -= position_weight[i][j] * piece_values[now.board[now_player^1][i][j]];
@@ -39,7 +40,7 @@ int State::evaluate(){//state-value-function
   }
 
   int control = 0;
-  for(int i = 0;i < 5;++i){
+  for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
       if(now.board[now_player][i][j])control++;
       else if(now.board[now_player^1][i][j])control--;
@@ -48,7 +49,7 @@ int State::evaluate(){//state-value-function
   value += control;
 
   double attack_defense_value = 0;
-  for(int i = 0;i < 5;++i){
+  for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
       if(now.board[now_player][i][j]){
         //attack
@@ -63,7 +64,7 @@ int State::evaluate(){//state-value-function
         attack_defense_value += attack_value;
         //defense
         double defense_value = 0;
-        for(int k = 0;k < 5;++k){
+        for(int k = 0;k < 6;++k){
           for(int l = 0;l < 5;++l){
             if(now.board[now_player][k][l] and (k!=i or l!=j)){
               defense_value += piece_values[now.board[now_player][k][l]] / (1.0 * abs(k - i) + abs(l - j) + 1.0);
