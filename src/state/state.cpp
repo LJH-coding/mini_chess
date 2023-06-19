@@ -1,10 +1,12 @@
 #include <iostream>
 #include <sstream>
 #include <cstdint>
+#include <random>
 
 #include "./state.hpp"
 #include "../config.hpp"
 
+std::mt19937 mt(time(0));
 
 /**
  * @brief evaluate the state
