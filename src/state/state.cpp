@@ -13,7 +13,7 @@
  * @return int 
  */
 int State::evaluate(){//state-value-function
-	int value = 0, now_player = this->player;
+	int value = 0, now_player = 0;
 	//piece value
   int piece_values[] = {0, 1, 5, 3, 3, 9, 100};
   int position_weight[5][5] = {
