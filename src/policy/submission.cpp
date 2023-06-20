@@ -15,34 +15,30 @@ const double eps = 1e-4;
  * @return Move 
  */
 
-double MinMax(State *state, int depth, double alpha, double beta, int MaxPlayer){
+int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
+  if(!state->legal_actions.size())
+    state->get_legal_actions();
   if(depth == 0 || !state->legal_actions.size())
     return state->evaluate();
   if(MaxPlayer){
-    if(!state->legal_actions.size()){
-      if(state->game_state == WIN)return inf;
-      else return -inf;
-    }
-    double value = -inf;
+    int value = -inf;
     for(auto i : state->legal_actions){
       State *next_state = state->next_state(i);
-      value = std::max(value, MinMax(next_state, depth - 1, alpha, beta, 0));
-      alpha = std::max(alpha, value);
+      int x = MinMax(next_state, depth - 1, alpha, beta, 0);
+      value = std::max(value, x);
+      alpha = std::max(alpha, x);
       if(alpha >= beta)
         break;
     }
     return value;
   }
   else{
-    if(!state->legal_actions.size()){
-      if(state->game_state == WIN)return -inf;
-      else return inf;
-    }
-    double value = inf;
+    int value = inf;
     for(auto i : state->legal_actions){
       State *next_state = state->next_state(i);
-      value = std::min(value, MinMax(next_state, depth - 1, alpha, beta, 1));
-      beta = std::min(beta, value);
+      int x = MinMax(next_state, depth - 1, alpha, beta, 1);
+      value = std::min(value, x);
+      beta = std::min(beta, x);
       if(beta <= alpha)
         break;
     }
@@ -53,13 +49,21 @@ double MinMax(State *state, int depth, double alpha, double beta, int MaxPlayer)
 Move Submission::get_move(State *state, int depth){
   if(!state->legal_actions.size())
     state->get_legal_actions();
-  double ans = MinMax(state, depth, -inf, inf, 1);
+  int mx = -inf;
+  std::vector<Move>vec;
   for(auto i : state->legal_actions){
     State *next_state = state->next_state(i);
-    if((fabs(next_state->evaluate() - ans)) <= eps){
-      return i;
+    int ans = MinMax(next_state, depth, -inf, inf, 0);
+    if(ans >= mx){
+      if(ans > mx){
+	vec.clear();
+	mx = ans;
+      }
+      vec.push_back(i);
     }
   }
+  if(vec.size())
+    return vec[(rand() + depth)%vec.size()];
   auto actions = state->legal_actions;
   return actions[(rand()+depth)%actions.size()];
 }

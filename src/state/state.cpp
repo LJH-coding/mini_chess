@@ -7,57 +7,125 @@
 #include "./state.hpp"
 #include "../config.hpp"
 
+std::mt19937 mt_rand(time(0));
+
 /**
  * @brief evaluate the state
  * 
  * @return int 
  */
-double State::evaluate(){//state-value-function
-	double value = 0;
-	int now_player = this->player;
-	//piece value
-  double piece_values[] = {0, 1, 5, 3, 3, 9, 100};
-  double position_weight[6][5] = {
-    {1.75,1.75,1.75,1.75,1.75},
-    {1.625,1.625,1.625,1.625,1.625},
-    {1.5,1.5,1.5,1.5,1.5},
-    {1.25,1.25,1.25,1.25,1.25},
-    {1,1,1,1,1},
-    {1,1,1,1,1},
+int State::evaluate(){//state-value-function
+  int value = 0;
+  int now_player = this->player;
+  this->is_first = (this->player == this->first_player);
+	
+  if(this->game_state == WIN){
+    return this->is_first ? 1e9 : -1e9;
+  }
+  //piece value
+  int piece_values[] = {0, 10, 56, 30, 33, 90, 1000};
+
+  int position_weight[7][6][5] = {
+	  {
+	    {0,0,0,0,0},
+	    {0,0,0,0,0},
+	    {0,0,0,0,0},
+	    {0,0,0,0,0},
+	    {0,0,0,0,0},
+	    {0,0,0,0,0}
+	  },
+	  {
+	    {100,100,100,100,100},
+	    {50,50,50,50,50},
+	    {5, 5, 10, 25, 25},
+	    {0, 0, 0, 20, 20},
+	    {5,10,10,-20,-20},
+	    {0,0,0,0,0}
+	  },
+	  {
+		{0, 0, 0, 0, 0},
+		{5, 10, 10, 10, 10},
+		{-5, 0, 0, 0, 0},
+		{-5, 0, 0, 0, 0},
+		{-5, 0, 0, 0, 0},
+		{0, 0, 0, 5, 5}
+	  },
+	  {
+		{-50, -40, -30, -30, -30},
+		{-40, -20, 0, 0, 0},
+		{-30, 5, 15, 20, 20},
+		{-30, 5, 15, 20, 20},
+		{-40, -20, 0, 5, 5},
+		{-50, -40, -30, -30, -30}
+	  },
+	  {
+		  {-20, -10, -10, -10, -10},
+		  {-10, 0, 0, 0, 0},
+		  {-10, 5, 5, 10, 10},
+		  {-10, 0, 10, 10, 10},
+		  {-10, 5, 0, 0, 0},
+		  {-20, -10, -10, -10, -10}
+	  },
+	  {
+		  {-20, -10, -10, -5, -5},
+		  {-10, 0, 0, 0, 0},
+		  {-5, 0, 5, 5, 5},
+		  {0, 0, 5, 5, 5},
+		  {-10, 0, 5, 0, 0},
+		  {-20, -10, -10, -5, -5}
+	  },
+	  {
+		  {-30, -40, -40, -50, -50},
+		  {-30, -40, -40, -50, -50},
+		  {-30, -40, -40, -50, -50},
+		  {-20, -30, -30, -40, -40},
+		  {20, 20, 0, 0, 0},
+		  {20, 30, 10, 0, 0}
+	  },
   };
-  if(now_player){
-    for(int i = 0;i < 3;++i){
-      for(int j = 0;j < 5;++j){
-        std::swap(position_weight[i][j], position_weight[5-i][j]);
+  Board now = this->board;
+
+  for(int np = 0;np < 2;++np){
+  for(int i = 0;i < 6;++i){
+    for(int j = 0;j < 5;++j){
+      if(np == this->first_player){
+      	value += piece_values[now.board[np][i][j]];
+      }
+      else{
+      	value -= piece_values[now.board[np][i][j]];
       }
     }
   }
-  Board now = this->board;
-  for(int i = 0;i < 6;++i){
-    for(int j = 0;j < 5;++j){
-      value += piece_values[now.board[now_player][i][j]];
-      value -= piece_values[now.board[now_player^1][i][j]];
-    }
   }
-  std::cout<<value<<'\n';
 
+  /*
   for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
-      value += position_weight[i][j] * piece_values[now.board[now_player][i][j]];
-      value -= position_weight[i][j] * piece_values[now.board[now_player^1][i][j]];
+      if(this->is_first){
+        value += position_weight[now.board[now_player][i][j]][i][j] * piece_values[now.board[now_player][i][j]];
+        value -= position_weight[now.board[now_player^1][i][j]][i][j] * piece_values[now.board[now_player^1][i][j]];
+      }
+      else{
+        value -= position_weight[now.board[now_player][i][j]][i][j] * piece_values[now.board[now_player][i][j]];
+        value += position_weight[now.board[now_player^1][i][j]][i][j] * piece_values[now.board[now_player^1][i][j]];
+      }
     }
   }
-  std::cout<<value<<'\n';
 
   double control = 0;
   for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
-      if(now.board[now_player][i][j])control += (rand()%100000)/100000.0;
-      else if(now.board[now_player^1][i][j])control -= (rand()%100000)/100000.0;
+      if(this->is_first){
+        if(now.board[now_player][i][j])control += (mt_rand()%100000 + 1)/100000.0;
+	else if(now.board[now_player^1][i][j])control -= (mt_rand()%100000 + 1)/100000.0;
+      }
+      else{
+        if(now.board[now_player][i][j])control -= (mt_rand()%100000 + 1)/100000.0;
+	else if(now.board[now_player^1][i][j])control += (mt_rand()%100000 + 1)/100000.0;
+      }
     }
   }
-  std::cout<<control*200<<'\n';
-  value += control*200;
+  value += control;
 
   double attack_defense_value = 0;
   for(int i = 0;i < 6;++i){
@@ -87,9 +155,8 @@ double State::evaluate(){//state-value-function
     }
   }
   value += attack_defense_value;
-  std::cout<<attack_defense_value<<'\n';
-
-	return value;
+  */
+  return value;
 }
 
 
@@ -116,6 +183,7 @@ State* State::next_state(Move move){
   next.board[this->player][to.first][to.second] = moved;
   
   State* next_state = new State(next, 1-this->player);
+  next_state->first_player = this->first_player;
   
   if(this->game_state != WIN)
     next_state->get_legal_actions();
@@ -283,7 +351,7 @@ void State::get_legal_actions(){
       }
     }
   }
-  std::cout << "\n";
+  //std::cout << "\n";
   this->legal_actions = all_actions;
 }
 

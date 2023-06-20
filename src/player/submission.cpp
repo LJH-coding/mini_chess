@@ -29,6 +29,7 @@ void read_board(std::ifstream& fin) {
     }
   }
   root = new State(board, player);
+  root->first_player = player;
   root->get_legal_actions();
 }
 
@@ -43,12 +44,13 @@ void write_valid_spot(std::ofstream& fout) {
   int depth = 3;
   while(true) {
     // Choose a random spot.
-    auto move = Submission::get_move(root, depth++);
+    auto move = Submission::get_move(root, depth);
     fout << move.first.first << " " << move.first.second << " "\
          << move.second.first << " " << move.second.second << std::endl;
     
     // Remember to flush the output to ensure the last action is written to file.
     fout.flush();
+    depth++;
   }
 }
 
