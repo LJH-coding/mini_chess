@@ -17,13 +17,20 @@ int State::evaluate(){//state-value-function
 	//piece value
   int piece_values[] = {0, 1, 5, 3, 3, 9, 100};
   int position_weight[6][5] = {
-    {-40,-30,-20,-30,-40},
-    {-30,-15,0,-15,-30},
-    {-20,0,10,0,-20},
-    {-20,0,10,0,-20},
-    {-30,-15,0,-15,-30},
-    {-40,-30,-20,-30,-40},
+    {50,50,50,50,50},
+    {40,40,40,40,40},
+    {30,30,30,30,30},
+    {20,20,20,20,20},
+    {10,10,10,10,10},
+    {1,1,1,1,1},
   };
+  if(now_player){
+    for(int i = 0;i < 3;++i){
+      for(int j = 0;j < 5;++j){
+        std::swap(position_weight[i][j], position_weight[5-i][j]);
+      }
+    }
+  }
   Board now = this->board;
   for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
@@ -54,7 +61,7 @@ int State::evaluate(){//state-value-function
       if(now.board[now_player][i][j]){
         //attack
         double attack_value = 0;
-        for(int k = 0;k < 5;++k){
+        for(int k = 0;k < 6;++k){
           for(int l = 0;l < 5;++l){
             if(now.board[now_player^1][k][l]){
               attack_value += piece_values[now.board[now_player^1][k][l]] / (1.0 * abs(k - i) + abs(l - j) + 1.0);
@@ -75,7 +82,7 @@ int State::evaluate(){//state-value-function
       }
     }
   }
-  value += ceil(attack_defense_value * 10);
+  value += attack_defense_value;
 
 	return value;
 }

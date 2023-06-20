@@ -18,6 +18,10 @@ int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
   if(depth == 0 || !state->legal_actions.size())
     return state->evaluate();
   if(MaxPlayer){
+    if(!state->legal_actions.size()){
+      if(state->game_state == WIN)return inf;
+      else return -inf;
+    }
     int value = -inf;
     for(auto i : state->legal_actions){
       State *next_state = state->next_state(i);
@@ -29,6 +33,10 @@ int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
     return value;
   }
   else{
+    if(!state->legal_actions.size()){
+      if(state->game_state == WIN)return -inf;
+      else return inf;
+    }
     int value = inf;
     for(auto i : state->legal_actions){
       State *next_state = state->next_state(i);
