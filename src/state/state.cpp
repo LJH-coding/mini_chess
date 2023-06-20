@@ -24,63 +24,13 @@ int State::evaluate(){//state-value-function
   //piece value
   int piece_values[] = {0, 2, 6, 7, 8, 20, 100};
 
-  int position_weight[7][6][5] = {
-	  {
-	    {5,4,3,4,5},
-	    {4,3,2,3,4},
-	    {3,2,1,2,3},
-	    {3,2,1,2,3},
-	    {4,3,2,3,4},
-	    {5,4,3,4,5},
-	  },
-	  {
-	    {100,100,100,100,100},
-	    {50,50,50,50,50},
-	    {5, 5, 10, 25, 25},
-	    {0, 0, 0, 20, 20},
-	    {5,10,10,-20,-20},
-	    {0,0,0,0,0}
-	  },
-	  {
-		{0, 0, 0, 0, 0},
-		{5, 10, 10, 10, 10},
-		{-5, 0, 0, 0, 0},
-		{-5, 0, 0, 0, 0},
-		{-5, 0, 0, 0, 0},
-		{0, 0, 0, 5, 5}
-	  },
-	  {
-		{-50, -40, -30, -30, -30},
-		{-40, -20, 0, 0, 0},
-		{-30, 5, 15, 20, 20},
-		{-30, 5, 15, 20, 20},
-		{-40, -20, 0, 5, 5},
-		{-50, -40, -30, -30, -30}
-	  },
-	  {
-		  {-20, -10, -10, -10, -10},
-		  {-10, 0, 0, 0, 0},
-		  {-10, 5, 5, 10, 10},
-		  {-10, 0, 10, 10, 10},
-		  {-10, 5, 0, 0, 0},
-		  {-20, -10, -10, -10, -10}
-	  },
-	  {
-		  {-20, -10, -10, -5, -5},
-		  {-10, 0, 0, 0, 0},
-		  {-5, 0, 5, 5, 5},
-		  {0, 0, 5, 5, 5},
-		  {-10, 0, 5, 0, 0},
-		  {-20, -10, -10, -5, -5}
-	  },
-	  {
-		  {-30, -40, -40, -50, -50},
-		  {-30, -40, -40, -50, -50},
-		  {-30, -40, -40, -50, -50},
-		  {-20, -30, -30, -40, -40},
-		  {20, 20, 0, 0, 0},
-		  {20, 30, 10, 0, 0}
-	  },
+  int position_weight[6][5] = {
+    {5,4,3,4,5},
+    {4,3,2,3,4},
+    {3,2,1,2,3},
+    {3,2,1,2,3},
+    {4,3,2,3,4},
+    {5,4,3,4,5},
   };
   Board now = this->board;
 
@@ -88,45 +38,16 @@ int State::evaluate(){//state-value-function
     for(int i = 0;i < 6;++i){
       for(int j = 0;j < 5;++j){
         if(np == this->first_player){
-	  value += piece_values[now.board[np][i][j]] * position_weight[0][i][j];
+          if(now.board[np][i][j])
+	    value += piece_values[now.board[np][i][j]] + position_weight[0][i][j];
         }
         else{
-	  value -= piece_values[now.board[np][i][j]] * position_weight[0][i][j];
+          if(now.board[np][i][j])
+	    value -= piece_values[now.board[np][i][j]] + position_weight[0][i][j];
         }
       }
     }
   }
-  /*
-  for(int i = 0;i < 6;++i){
-    for(int j = 0;j < 5;++j){
-      if(this->is_first){
-        value += position_weight[now.board[now_player][i][j]][i][j] * piece_values[now.board[now_player][i][j]];
-        value -= position_weight[now.board[now_player^1][i][j]][i][j] * piece_values[now.board[now_player^1][i][j]];
-      }
-      else{
-        value -= position_weight[now.board[now_player][i][j]][i][j] * piece_values[now.board[now_player][i][j]];
-        value += position_weight[now.board[now_player^1][i][j]][i][j] * piece_values[now.board[now_player^1][i][j]];
-      }
-    }
-  }
-  */
-
-  /*
-  int control = 0;
-  for(int i = 0;i < 6;++i){
-    for(int j = 0;j < 5;++j){
-      if(this->is_first){
-        if(now.board[now_player][i][j])control ++;
-	else if(now.board[now_player^1][i][j])control --;
-      }
-      else{
-        if(now.board[now_player][i][j])control --;
-	else if(now.board[now_player^1][i][j])control ++;
-      }
-    }
-  }
-  value += control;
-  */
 
   return value;
 }
