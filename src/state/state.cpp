@@ -18,21 +18,20 @@ int State::evaluate(){//state-value-function
   int value = 0;
   int now_player = this->player;
   this->is_first = (this->player == this->first_player);
-	
   if(this->game_state == WIN){
     return this->is_first ? 1e9 : -1e9;
   }
   //piece value
-  int piece_values[] = {0, 10, 56, 30, 33, 90, 1000};
+  int piece_values[] = {0, 2, 6, 7, 8, 20, 100};
 
   int position_weight[7][6][5] = {
 	  {
-	    {0,0,0,0,0},
-	    {0,0,0,0,0},
-	    {0,0,0,0,0},
-	    {0,0,0,0,0},
-	    {0,0,0,0,0},
-	    {0,0,0,0,0}
+	    {5,4,3,4,5},
+	    {4,3,2,3,4},
+	    {3,2,1,2,3},
+	    {3,2,1,2,3},
+	    {4,3,2,3,4},
+	    {5,4,3,4,5},
 	  },
 	  {
 	    {100,100,100,100,100},
@@ -86,18 +85,17 @@ int State::evaluate(){//state-value-function
   Board now = this->board;
 
   for(int np = 0;np < 2;++np){
-  for(int i = 0;i < 6;++i){
-    for(int j = 0;j < 5;++j){
-      if(np == this->first_player){
-      	value += piece_values[now.board[np][i][j]];
-      }
-      else{
-      	value -= piece_values[now.board[np][i][j]];
+    for(int i = 0;i < 6;++i){
+      for(int j = 0;j < 5;++j){
+        if(np == this->first_player){
+	  value += piece_values[now.board[np][i][j]] * position_weight[0][i][j];
+        }
+        else{
+	  value -= piece_values[now.board[np][i][j]] * position_weight[0][i][j];
+        }
       }
     }
   }
-  }
-
   /*
   for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
@@ -111,51 +109,25 @@ int State::evaluate(){//state-value-function
       }
     }
   }
+  */
 
-  double control = 0;
+  /*
+  int control = 0;
   for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
       if(this->is_first){
-        if(now.board[now_player][i][j])control += (mt_rand()%100000 + 1)/100000.0;
-	else if(now.board[now_player^1][i][j])control -= (mt_rand()%100000 + 1)/100000.0;
+        if(now.board[now_player][i][j])control ++;
+	else if(now.board[now_player^1][i][j])control --;
       }
       else{
-        if(now.board[now_player][i][j])control -= (mt_rand()%100000 + 1)/100000.0;
-	else if(now.board[now_player^1][i][j])control += (mt_rand()%100000 + 1)/100000.0;
+        if(now.board[now_player][i][j])control --;
+	else if(now.board[now_player^1][i][j])control ++;
       }
     }
   }
   value += control;
-
-  double attack_defense_value = 0;
-  for(int i = 0;i < 6;++i){
-    for(int j = 0;j < 5;++j){
-      if(now.board[now_player][i][j]){
-        //attack
-        double attack_value = 0;
-        for(int k = 0;k < 6;++k){
-          for(int l = 0;l < 5;++l){
-            if(now.board[now_player^1][k][l]){
-              attack_value += piece_values[now.board[now_player^1][k][l]] / (1.0 * abs(k - i) + abs(l - j) + 1.0);
-            }
-          }
-        }
-        attack_defense_value += attack_value;
-        //defense
-        double defense_value = 0;
-        for(int k = 0;k < 6;++k){
-          for(int l = 0;l < 5;++l){
-            if(now.board[now_player][k][l] and (k!=i or l!=j)){
-              defense_value += piece_values[now.board[now_player][k][l]] / (1.0 * abs(k - i) + abs(l - j) + 1.0);
-            }
-          }
-        }
-        attack_defense_value -= defense_value;
-      }
-    }
-  }
-  value += attack_defense_value;
   */
+
   return value;
 }
 
