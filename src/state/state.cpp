@@ -12,16 +12,17 @@
  * 
  * @return int 
  */
-int State::evaluate(){//state-value-function
-	int value = 0, now_player = this->player;
+double State::evaluate(){//state-value-function
+	double value = 0;
+	int now_player = this->player;
 	//piece value
-  int piece_values[] = {0, 1, 5, 3, 3, 9, 100};
-  int position_weight[6][5] = {
-    {50,50,50,50,50},
-    {40,40,40,40,40},
-    {30,30,30,30,30},
-    {20,20,20,20,20},
-    {10,10,10,10,10},
+  double piece_values[] = {0, 1, 5, 3, 3, 9, 100};
+  double position_weight[6][5] = {
+    {1.75,1.75,1.75,1.75,1.75},
+    {1.625,1.625,1.625,1.625,1.625},
+    {1.5,1.5,1.5,1.5,1.5},
+    {1.25,1.25,1.25,1.25,1.25},
+    {1,1,1,1,1},
     {1,1,1,1,1},
   };
   if(now_player){
@@ -38,6 +39,7 @@ int State::evaluate(){//state-value-function
       value -= piece_values[now.board[now_player^1][i][j]];
     }
   }
+  std::cout<<value<<'\n';
 
   for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
@@ -45,15 +47,17 @@ int State::evaluate(){//state-value-function
       value -= position_weight[i][j] * piece_values[now.board[now_player^1][i][j]];
     }
   }
+  std::cout<<value<<'\n';
 
-  int control = 0;
+  double control = 0;
   for(int i = 0;i < 6;++i){
     for(int j = 0;j < 5;++j){
-      if(now.board[now_player][i][j])control++;
-      else if(now.board[now_player^1][i][j])control--;
+      if(now.board[now_player][i][j])control += (rand()%100000)/100000.0;
+      else if(now.board[now_player^1][i][j])control -= (rand()%100000)/100000.0;
     }
   }
-  value += control;
+  std::cout<<control*200<<'\n';
+  value += control*200;
 
   double attack_defense_value = 0;
   for(int i = 0;i < 6;++i){
@@ -83,6 +87,7 @@ int State::evaluate(){//state-value-function
     }
   }
   value += attack_defense_value;
+  std::cout<<attack_defense_value<<'\n';
 
 	return value;
 }

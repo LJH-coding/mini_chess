@@ -5,6 +5,7 @@
 #include "./submission.hpp"
 
 const int inf = 1e9+7;
+const double eps = 1e-4;
 
 /**
  * @brief Randomly get a legal action
@@ -14,7 +15,7 @@ const int inf = 1e9+7;
  * @return Move 
  */
 
-int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
+double MinMax(State *state, int depth, double alpha, double beta, int MaxPlayer){
   if(depth == 0 || !state->legal_actions.size())
     return state->evaluate();
   if(MaxPlayer){
@@ -22,7 +23,7 @@ int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
       if(state->game_state == WIN)return inf;
       else return -inf;
     }
-    int value = -inf;
+    double value = -inf;
     for(auto i : state->legal_actions){
       State *next_state = state->next_state(i);
       value = std::max(value, MinMax(next_state, depth - 1, alpha, beta, 0));
@@ -37,7 +38,7 @@ int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
       if(state->game_state == WIN)return -inf;
       else return inf;
     }
-    int value = inf;
+    double value = inf;
     for(auto i : state->legal_actions){
       State *next_state = state->next_state(i);
       value = std::min(value, MinMax(next_state, depth - 1, alpha, beta, 1));
@@ -52,10 +53,10 @@ int MinMax(State *state, int depth, int alpha, int beta, int MaxPlayer){
 Move Submission::get_move(State *state, int depth){
   if(!state->legal_actions.size())
     state->get_legal_actions();
-  int ans = MinMax(state, depth, -inf, inf, 1);
+  double ans = MinMax(state, depth, -inf, inf, 1);
   for(auto i : state->legal_actions){
     State *next_state = state->next_state(i);
-    if(next_state->evaluate() == ans){
+    if((fabs(next_state->evaluate() - ans)) <= eps){
       return i;
     }
   }
