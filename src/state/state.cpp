@@ -39,11 +39,11 @@ int State::evaluate(){//state-value-function
       for(int j = 0;j < 5;++j){
         if(np == this->first_player){
           if(now.board[np][i][j])
-	    value += piece_values[now.board[np][i][j]] + position_weight[0][i][j];
+	    value += piece_values[now.board[np][i][j]] + position_weight[i][j];
         }
         else{
           if(now.board[np][i][j])
-	    value -= piece_values[now.board[np][i][j]] + position_weight[0][i][j];
+	    value -= piece_values[now.board[np][i][j]] + position_weight[i][j];
         }
       }
     }
